@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.whp.hms.mapper.LiveRecordDao">
+
+    <resultMap id="BaseResultMap" type="com.whp.hms.core.entity.LiveRecord">
+        <!--@Table live_record-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="roomNum" column="room_num" jdbcType="VARCHAR"/>
+        <result property="liveTime" column="live_time" jdbcType="VARCHAR"/>
+        <result property="endTime" column="end_time" jdbcType="VARCHAR"/>
+        <result property="totalPrice" column="total_price" jdbcType="NUMERIC"/>
+        <result property="clientId" column="client_id" jdbcType="INTEGER"/>
+
+        <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="imgs" column="imgs" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select *
+        from hms.live_record
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="BaseResultMap">
+        select *
+        from hms.live_record limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        select
+        *
+        from hms.live_record
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="roomNum != null and roomNum != ''">
+                and room_num = #{roomNum}
+            </if>
+            <if test="liveTime != null and liveTime != ''">
+                and live_time = #{liveTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and end_time = #{endTime}
+            </if>
+            <if test="totalPrice != null">
+                and total_price = #{totalPrice}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryAdminList" resultMap="BaseResultMap">
+        select lr.*,c.nickname
+        from live_record lr
+        left join client c on c.id = lr.client_id
+        <where>
+            <if test="nickname !=null and nickname != ''">
+                and c.nickname like '%${nickname}%'
+            </if>
+            <if test="room !=null and room != ''">
+                and lr.room_num = #{room}
+            </if>
+        </where>
+        order by lr.live_time desc
+        limit #{offset},#{limit}
+
+    </select>
+
+    <select id="queryAdminCount" resultType="java.lang.Integer">
+        select count(*)
+        from live_record lr
+        left join client c on c.id = lr.client_id
+        <where>
+            <if test="nickname !=null and nickname != ''">
+                and c.nickname like '%${nickname}%'
+            </if>
+            <if test="room !=null and room != ''">
+                and lr.room_num = #{room}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into hms.live_record(room_num, live_time, end_time, total_price, client_id)
+        values (#{roomNum}, #{liveTime}, #{endTime}, #{totalPrice}, #{clientId})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update hms.live_record
+        <set>
+            <if test="roomNum != null and roomNum != ''">
+                room_num = #{roomNum},
+            </if>
+            <if test="liveTime != null and liveTime != ''">
+                live_time = #{liveTime},
+            </if>
+            <if test="endTime != null and endTime != ''">
+                end_time = #{endTime},
+            </if>
+            <if test="totalPrice != null">
+                total_price = #{totalPrice},
+            </if>
+            <if test="clientId != null">
+                client_id = #{clientId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from hms.live_record
+        where id = #{id}
+    </delete>
+    <select id="myRecordtList" resultMap="BaseResultMap">
+        select liv.*,cli.nickname,type.title,type.imgs
+        from hms.live_record liv
+        left join hms.client cli
+        on
+        liv.client_id = cli.id
+        left join hms.room room on liv.room_num = room.room_num
+        left join room_type type on room.type_id = type.id
+        <where>
+            <if test="id != null">
+                and liv.client_id = #{id}
+            </if>
+        </where>
+        order by liv.live_time desc
+        limit #{offset},#{limit}
+    </select>
+
+</mapper>

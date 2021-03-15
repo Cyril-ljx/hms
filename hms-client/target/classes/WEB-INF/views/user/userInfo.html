@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的资料 - 酒店订房系统</title>
+    <!--: include("/import.html"){} -->
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+    <!--: include("/header.html"){}-->
+    <div class="layui-container">
+        <div class="row">
+            <div class="layui-col-xs12">
+                <div class="layui-row">
+                    <fieldset class="layui-elem-field" style="margin: 20px 10px">
+                        <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief" style="margin: 20px 10px">
+                            <ul class="layui-tab-title">
+                                <li class="layui-this">我的资料</li>
+                                <li>密码</li>
+                                <!--<li>更换头像</li>-->
+                            </ul>
+                            <div class="layui-tab-content">
+                                <div class="layui-tab-item layui-show">
+                                    <form class="layui-form" lay-filter="edit">
+
+                                        <div class="layui-form-item">
+                                            <label for="username"
+                                                   class="layui-form-label">账号</label>
+                                            <div class="layui-input-inline">
+                                                <input type="text" id="username" name="username"
+                                                       value="${client.username}" disabled lay-filter="edit"
+                                                       required="" placeholder="请输入账号" class="layui-input">
+                                            </div>
+                                            <div class="layui-form-mid layui-word-aux">账号唯一,注册后无法修改</div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label for="nickname"
+                                                   class="layui-form-label">姓名</label>
+                                            <div class="layui-input-inline">
+                                                <input type="text" id="nickname" name="nickname"
+                                                       value="${client.nickname}"
+                                                       required="" placeholder="请输入姓名" class="layui-input">
+                                            </div>
+                                            <div class="layui-form-mid layui-word-aux">请填写您的姓名,方便我们称呼您</div>
+                                        </div>
+
+                                        <div class="layui-form-item">
+                                            <label for="identify"
+                                                   class="layui-form-label">身份证</label>
+                                            <div class="layui-input-inline">
+                                                <input type="text" id="identify" name="identify"
+                                                       value="${client.identify}"
+                                                       required="" placeholder="请输入身份证" class="layui-input">
+                                            </div>
+                                            <div class="layui-form-mid layui-word-aux">没有身份证信息则无法订房</div>
+                                        </div>
+
+                                        <div class="layui-form-item">
+                                            <label for="phone"
+                                                   class="layui-form-label">手机</label>
+                                            <div class="layui-input-inline">
+                                                <input type="text" id="phone" name="phone"
+                                                       value="${client.phone}"
+                                                       required="" placeholder="请输入手机号" class="layui-input">
+                                            </div>
+                                            <div class="layui-form-mid layui-word-aux">填写正确的手机号码方便我们为您服务</div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label for="email"
+                                                   class="layui-form-label">邮件</label>
+                                            <div class="layui-input-inline">
+                                                <input type="text" id="email" name="email"
+                                                       value="${client.email}"
+                                                       required="" placeholder="请输入邮件" class="layui-input">
+                                            </div>
+                                            <div class="layui-form-mid layui-word-aux">请填写您的邮件</div>
+                                        </div>
+                                        <div>
+                                            <button type="submit" class="layui-btn-normal layui-btn editInfo">修改个人信息
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="layui-tab-item">
+                                    <div class="layui-form-item">
+                                        <label for="pwd1"
+                                               class="layui-form-label">密码</label>
+                                        <div class="layui-input-inline">
+                                            <input type="password" id="pwd1" name="pwd1"
+                                                   required="" placeholder="请输入密码" class="layui-input">
+                                        </div>
+                                        <div class="layui-form-mid layui-word-aux">请输入修改的密码</div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <label for="pwd2"
+                                               class="layui-form-label">确认密码</label>
+                                        <div class="layui-input-inline">
+                                            <input type="password" id="pwd2" name="pwd2"
+                                                   required="" placeholder="请再次确认密码" class="layui-input">
+                                        </div>
+                                        <div class="layui-form-mid layui-word-aux">请再次确认密码</div>
+                                    </div>
+                                    <div>
+                                        <a class="layui-btn-normal layui-btn editPwd">修改密码</a>
+                                    </div>
+                                </div>
+                                <div class="layui-tab-item">换头像</div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    //注意：折叠面板 依赖 element 模块，否则无法进行功能性操作
+    layui.use(['element', "jquery", 'form'], function () {
+        const element = layui.element;
+        const $ = layui.jquery;
+        const form = layui.form;
+
+        $(".editInfo").click(function () {
+            let client = {};
+            client.username = $("#username").val()
+            client.nickname = $("#nickname").val()
+            client.phone = $("#phone").val()
+            client.email = $("#email").val()
+            client.identify = $("#identify").val()
+            layer.confirm("确认修改?", ['确认', '取消'], function () {
+                $.ajax({
+                    url: "/hms/client/update",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: JSON.stringify(client),
+                    success: function (data) {
+                        if (!data.succeed) {
+                            layer.msg("修改失败", {"icon": 2})
+                        } else {
+                            var index = parent.layer.getFrameIndex(window.name);//获取窗口索引
+                            layer.msg("修改成功", {time: 200}, function () {
+                                parent.layer.close(index);
+                                location.reload();
+                            });//关闭弹窗，父页面刷新
+                        }
+                    },
+                    error: function (msg) {
+                        console.log(msg)
+                    }
+                });
+            });
+            return false;
+        })
+
+        $(".editPwd").click(function () {
+
+            let pwd1 = $("#pwd1").val()
+            let pwd2 = $("#pwd2").val()
+            if (pwd1 !== pwd2) {
+                layer.alert("两次输入的密码不一致!", {"icon": 2})
+                return false;
+            }
+            layer.confirm("确认修改?", ['确认', '取消'], function () {
+                $.ajax({
+                    url: "/hms/client/update",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: JSON.stringify({"pwd": pwd1}),
+                    success: function (data) {
+                        if (!data.succeed) {
+                            layer.msg("修改失败", {"icon": 2})
+                        } else {
+                            var index = parent.layer.getFrameIndex(window.name);//获取窗口索引
+                            layer.msg("修改成功", {time: 200}, function () {
+                                parent.layer.close(index);
+                                location.reload();
+                            });//关闭弹窗，父页面刷新
+                        }
+                    },
+                    error: function (msg) {
+                        console.log(msg)
+                    }
+                });
+            });
+            return false;
+        })
+
+        //…
+    });
+</script>
+</html>

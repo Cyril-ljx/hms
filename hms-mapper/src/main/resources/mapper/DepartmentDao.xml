@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.whp.hms.mapper.DepartmentDao">
+
+    <resultMap id="BaseResultMap" type="com.whp.hms.core.entity.Department">
+        <!--@Table department-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="hId" column="h_id" jdbcType="INTEGER"/>
+        <result property="depName" column="dep_name" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="depOrder" column="dep_order" jdbcType="INTEGER"/>
+        <result property="parent" column="parent"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select id,
+               h_id,
+               dep_name,
+               description,
+               dep_order
+        from hms.department
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="BaseResultMap">
+        select d1.*,d2.dep_name parent
+        from hms.department d1
+        left join department d2 on d1.h_id = d2.id
+        order by h_id
+            limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        select
+        id, h_id, dep_name, description, dep_order
+        from hms.department
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="hId != null">
+                and h_id = #{hId}
+            </if>
+            <if test="depName != null and depName != ''">
+                and dep_name = #{depName}
+            </if>
+            <if test="description != null and description != ''">
+                and description = #{description}
+            </if>
+            <if test="depOrder != null">
+                and dep_order = #{depOrder}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into hms.department(h_id, dep_name, description, dep_order)
+        values (#{hId}, #{depName}, #{description}, #{depOrder})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update hms.department
+        <set>
+            <if test="hId != null">
+                h_id = #{hId},
+            </if>
+            <if test="depName != null and depName != ''">
+                dep_name = #{depName},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+            <if test="depOrder != null">
+                dep_order = #{depOrder},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from hms.department
+        where id = #{id}
+    </delete>
+
+</mapper>

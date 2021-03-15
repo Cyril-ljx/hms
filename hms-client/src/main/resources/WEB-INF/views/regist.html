@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>注册 - 酒店订房系统</title>
+    <link rel="stylesheet" href="/static/css/login.css">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/layer/layer.js"></script>
+    <link rel="stylesheet" href="/static/layer/theme/default/layer.css">
+    <style>
+        button {
+            width: 95%;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login">
+    <div class="center">
+        <h1><img src="/static/imgs/Windows10.png" alt=""></h1>
+
+        <form id="form">
+            <div class="inputLi">
+                <input type="text" class="user" id="username" placeholder="请输入账号" required>
+            </div>
+            <div class="inputLi">
+                <input type="text" id="nickname" placeholder="请输入用户名" required>
+            </div>
+            <div class="inputLi">
+                <input type="text" id="identify" placeholder="请输入身份证" required>
+            </div>
+            <div class="inputLi">
+                <input type="text" id="phone" placeholder="请输入电话" required>
+            </div>
+            <div class="inputLi">
+                <input type="password" class="pwd" id="pwd1" placeholder="请输入密码" required>
+            </div>
+            <div class="inputLi">
+                <input type="password" class="pwd" id="pwd2" placeholder="请再次确认密码" required>
+            </div>
+            <div class="inputLi">
+                <div style="width: 50%">
+                    <button type="button" id="regist">注册</button>
+                </div>
+                <div style="width: 50%">
+                    <button type="button" id="login" style="background: white;color: #537895;border: 1px solid #537895">
+                        返回登录
+                    </button>
+                </div>
+            </div>
+        </form>
+        <p class="tip">欢迎使用酒店订房系统</p>
+    </div>
+</div>
+
+</body>
+<script>
+
+    $("#login").click(function () {
+        window.location.href = "/hms/client/page/login";
+    })
+
+    $("#regist").click(function () {
+        let pwd1 = $("#pwd1").val();
+        let pwd2 = $("#pwd2").val();
+        if (pwd1 !== pwd2) {
+            layer.alert("两次输入的密码不一致");
+            return false;
+        }
+        const data = {};
+        data.password = pwd1;
+        data.username = $("#username").val();
+        data.nickname = $("#nickname").val();
+        data.phone = $("#phone").val();
+        data.identify = $("#identify").val();
+        console.log(data)
+        if (data.pwd === null || data.pwd === "") {
+            layer.msg("密码不能为空");
+            return false;
+        } else {
+            $.ajax({
+                url: "/hms/client/regist",
+                data: JSON.stringify(data),
+                type: 'post',
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    console.log(data)
+                    if (data.succeed) {
+                        layer.msg("注册成功,跳转到首页", {"icon": 1})
+                        window.location.href = "/hms/client/authority/index";
+                    } else {
+                        layer.alert(data.msg, {"icon": 2});
+                    }
+                },
+                error: function () {
+                    layer.alert("请求发送失败", {"icon": 2});
+                }
+            });
+            return false;
+        }
+    })
+
+
+</script>
+
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>房间修改 - 酒店管理系统</title>
+    <!--: include("/import.html"){} -->
+</head>
+<body>
+<div class="layui-container">
+    <div class="layui-row layui-col-space5">
+        <div class="grid-demo">
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 10px;">
+                <legend>房间信息</legend>
+            </fieldset>
+            <form class="layui-form layui-form-pane" action="" lay-filter="form">
+                <input type="hidden" name="id">
+                <input type="hidden" name="state">
+                <input type="hidden" name="useable">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">房间编号</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="roomNum" lay-verify="required" placeholder="请输入" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">房间类型</label>
+                    <div class="layui-input-block">
+                        <select id="type" name="typeId">
+                            <option value="">请选择房间类型</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="layui-form-item" style="text-align: center">
+                    <button class="layui-btn layui-btn-fluid" lay-submit="" lay-filter="form">修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    layui.use(['form', 'layer', 'jquery', 'laydate'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , $ = layui.jquery
+            , laydate = layui.laydate;
+
+        $(document).ready(function () {
+            $.ajax({
+                url: "/hms/admin/roomType/roomTypes",
+                type: 'post',
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.succeed) {
+                        var types = data.data;
+                        console.log(types)
+                        for (let i = 0; i < types.length; i++) {
+                            let col = types[i];
+                            $("#type").append(
+                                $("<option>").attr("value", col.id).html(col.title)
+                            )
+                        }
+                        form.render('select');
+                        $.ajax({
+                            url: "/hms/admin/room/detail",
+                            type: 'post',
+                            dataType: "json",
+                            data: JSON.stringify({"id": "${id}"}),
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                if (data.succeed) {
+                                    let item = data.data;
+                                    form.val('form', {
+                                        "id": item.id,
+                                        "roomNum": item.roomNum,
+                                        "typeId": item.typeId,
+                                        "state": item.state,
+                                        "useable": item.useable
+                                    })
+                                } else {
+                                    layer.msg(data.msg);
+                                }
+                            }
+                        });
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                }
+            });
+        })
+        form.on('submit(form)', function (data) {
+            layer.confirm("确认修改?", ['确认', '取消'], function () {
+                $.ajax({
+                    url: "/hms/admin/room/add",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: JSON.stringify(data.field),
+                    success: function (data) {
+                        if (!data.succeed) {
+                            layer.msg("修改失败")
+                        } else {
+                            var index = parent.layer.getFrameIndex(window.name);//获取窗口索引
+                            layer.msg("修改成功", {time: 200}, function () {
+                                parent.layer.close(index);
+                                location.reload();
+                            });//关闭弹窗，父页面刷新
+                        }
+                    },
+                    error: function (msg) {
+                        console.log(msg)
+                    }
+                });
+            });
+
+            return false;
+        });
+
+    })
+</script>
+</html>

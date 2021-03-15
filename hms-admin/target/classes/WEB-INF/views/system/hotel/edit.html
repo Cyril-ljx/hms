@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>酒店信息修改 - 酒店管理系统</title>
+    <!--: include("/import.html"){} -->
+    <style>
+        img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .img {
+            width: 75px;
+            height: 75px;
+            margin: 10px 20px 0px 0px
+        }
+    </style>
+</head>
+<body>
+<div class="layui-container">
+    <div class="layui-row layui-col-space5">
+        <div class="grid-demo">
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 10px;">
+                <legend>酒店信息</legend>
+            </fieldset>
+            <form class="layui-form layui-form-pane" action="" lay-filter="form">
+                <input type="hidden" name="id">
+                <input id="upload" type="file" style="display: none"/>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">模板标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="htitle" lay-verify="required" placeholder="请输入" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">酒店名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="hname" lay-verify="required" placeholder="请输入" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">酒店地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="haddress" lay-verify="required" placeholder="请输入" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">酒店电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="hphone" lay-verify="required" placeholder="请输入" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">负责人</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="hmanager" lay-verify="required" placeholder="请输入" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">负责人电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="hmphone" lay-verify="required" placeholder="请输入" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">酒店信息</label>
+                    <div class="layui-input-block">
+                        <textarea placeholder="请输入酒店信息" name="hinfo" class="layui-textarea"></textarea>
+                    </div>
+                </div>
+
+                <hr class="layui-bg-black">
+
+                <div class="layui-card">
+                    <div class="layui-card-header">主页轮播图(点击删除)</div>
+                    <div class="layui-card-body">
+                        <div class="layui-row imgs">
+                            <div class="layui-col-xs4 imgAdd img">
+                                <a href="#" class="layui-btn layui-btn-primary"
+                                   style="width: 75px;height: 75px;padding: 20px">
+                                    +
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-form-item" style="text-align: center">
+                    <button class="layui-btn layui-btn-fluid" lay-submit="" lay-filter="form">修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    layui.use(['form', 'layer', 'jquery', 'laydate'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , $ = layui.jquery
+            , laydate = layui.laydate;
+
+        $(".imgAdd").click(function () {
+            $("#upload").click();
+            return false;
+        })
+
+        $(document).ready(function () {
+
+            let id = "${id}";
+            $.ajax({
+                url: "/hms/admin/hotel/detail",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify({
+                    "id": id
+                }),
+                success: function (data) {
+                    if (data.succeed) {
+                        var item = data.data;
+                        console.log(item)
+                        form.val('form', {
+                            "id": item.id,
+                            "htitle": item.htitle,
+                            "hname": item.hname,
+                            "haddress": item.haddress,
+                            "hphone": item.hphone,
+                            "hmanager": item.hmanager,
+                            "hmphone": item.hmphone,
+                            "hinfo": item.hinfo,
+                            "isUse": item.isUse
+                        })
+
+
+                        //加载图片
+                        if (item.himgs !== null && item.himgs !== "") {
+                            let himgs = item.himgs.split(",");
+                            for (let i = 0; i < himgs.length; i++) {
+                                $(".imgs").prepend(imgShow(himgs[i]));
+                            }
+                            btnRemove();
+                        }
+                    } else {
+                        layer.alert(data.msg, {"icon": 2});
+                    }
+                },
+                error: function (msg) {
+                    console.log(msg)
+                }
+            });
+        })
+
+        $("#upload").change(function () {
+            var img = $("#upload").get(0).files[0];
+            var formData = new FormData();
+            var u_id = "${manager.id}";
+
+            formData.append("upload", img);
+            formData.append("uId", u_id);
+
+            var index = layer.load(1);
+
+            //异步请求
+            $.ajax({
+                url: "http://localhost:9000/resources/api/upload",
+                data: formData,
+                type: "POST",
+                async: false,
+                cache: false,
+                contentType: false,
+                processData: false,
+                crossDomain: true,//跨域请求
+                xhrFields: {
+                    withCredentials: true//允许携带cookie
+                },
+                success: function (res) {
+                    if (res.succeed) {
+                        layer.close(index);
+                        $(".imgs").prepend(imgShow(res.data));
+                        //rest();
+                        btnRemove();
+                        layer.msg("图片上传成功!");
+                    } else {
+                        layer.close(index);
+                        layer.alert(res.msg, {"icon": 2});
+                    }
+                },
+                error: function (data) {
+                    layer.close(index);
+                    layer.alert("请求超时!", {"icon": 3})
+                }
+            });
+        })
+
+        function imgShow(url) {
+            if (url == null || url === "") {
+                return null;
+            }
+            var strVar = "";
+            strVar += "                        <div class=\"layui-col-xs4 img\">";
+            strVar += "                            <a href=\"#\" class=\"imgBtn\">";
+            strVar += "                                <img src=\"" + url + "\">";
+            strVar += "                            <\/a>";
+            strVar += "                        <\/div>";
+            return $(strVar);
+        }
+
+        function btnRemove() {
+            //设置图片预览
+            $(".imgBtn").click(function () {
+                $(this).parent(".img").remove()
+                return false;
+            });
+        }
+
+        function hotelData(data) {
+            var urls = "";
+            var imgs = $("img");
+            for (let i = 0; i < imgs.length; i++) {
+                var url = $(imgs[i]).attr("src")
+                urls += url + ",";
+            }
+            data.himgs = urls;
+            return data;
+        }
+
+        form.on('submit(form)', function (data) {
+            layer.confirm("确认修改?", ['确认', '取消'], function () {
+                $.ajax({
+                    url: "/hms/admin/hotel/update",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: JSON.stringify(hotelData(data.field)),
+                    success: function (data) {
+                        if (!data.succeed) {
+                            layer.msg("修改失败")
+                        } else {
+                            var index = parent.layer.getFrameIndex(window.name);//获取窗口索引
+                            layer.msg("修改成功", {time: 200}, function () {
+                                parent.layer.close(index);
+                                location.reload();
+                            });//关闭弹窗，父页面刷新
+                        }
+                    },
+                    error: function (msg) {
+                        console.log(msg)
+                    }
+                });
+            });
+
+            return false;
+        });
+
+    })
+</script>
+</html>

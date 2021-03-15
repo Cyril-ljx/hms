@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>登录 - 酒店管理系统</title>
+    <link rel="stylesheet" href="/static/css/login.css">
+    <script src="/static/js/jquery.min.js"></script>
+    <!--: include("import.html"){} -->
+</head>
+
+<body>
+
+<div class="login">
+    <div class="center">
+        <h1><img src="/static/imgs/Windows10.png" alt=""></h1>
+        <form id="form">
+            <div class="inputLi">
+                <input type="text" class="user" placeholder="请输入" required>
+            </div>
+            <div class="inputLi">
+                <input type="password" class="pwd" placeholder="请输入" required>
+            </div>
+            <div class="inputLi">
+                <button type="submit">登录</button>
+            </div>
+        </form>
+        <p class="tip">欢迎使用酒店管理系统</p>
+    </div>
+</div>
+
+</body>
+<script>
+    layui.use(['carousel', 'form', "jquery", "layer"], function () {
+
+        const layer = layui.layer;
+
+        $("#form").submit(function () {
+            const data = {};
+            data.pwd = $(".pwd").val();
+            data.username = $(".user").val();
+
+            if (data.pwd === null || data.pwd === "") {
+                layer.msg("密码不能为空");
+                return false;
+            } else {
+
+                $.ajax({
+                    url: "/hms/admin/login",
+                    data: JSON.stringify(data),
+                    type: 'post',
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        console.log(data)
+                        if (data.succeed) {
+                            layer.msg("登录成功,跳转到首页", {"icon": 1})
+                            window.location.href = "/hms/admin/page/index";
+                        } else {
+                            layer.alert(data.msg, {"icon": 2});
+                        }
+                    },
+                    error: function () {
+                        layer.alert("请求发送失败", {"icon": 2});
+                    }
+                });
+            }
+            return false;
+        })
+    })
+
+
+</script>
+
+</html>

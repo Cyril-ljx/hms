@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>公告栏 - 酒店订房系统</title>
+    <!--: include("import.html"){} -->
+    <style>
+        .room {
+            background: #FFFFFF;
+            margin: 20px 10px;
+            border: 1px solid lightgray;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+    <!--: include("/header.html"){}-->
+    <div class="layui-container">
+        <div class="row">
+            <div class="layui-col-xs12">
+                <div class="layui-row">
+                    <fieldset class="layui-elem-field" style="margin: 20px 10px">
+                        <div class="layui-collapse">
+                            <!-- <div class="layui-colla-item">
+                                 <h2 class="layui-colla-title">公告标题 | 发布于：2021年2月22日17:42:44</h2>
+                                 <div class="layui-colla-content layui-show">公告内容</div>
+                             </div>
+                             <div class="layui-colla-item">
+                                 <h2 class="layui-colla-title">李清照</h2>
+                                 <div class="layui-colla-content layui-show">内容区域</div>
+                             </div>
+                             <div class="layui-colla-item">
+                                 <h2 class="layui-colla-title">鲁迅</h2>
+                                 <div class="layui-colla-content layui-show">内容区域</div>
+                             </div>-->
+                        </div>
+                        <div>
+                            <button class="layui-btn-primary layui-btn layui-btn-fluid more" style="margin: 20px 0px">
+                                查看更多
+                            </button>
+                        </div>
+
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    //注意：折叠面板 依赖 element 模块，否则无法进行功能性操作
+    layui.use(['element', 'jquery', 'layer'], function () {
+        const element = layui.element;
+        const $ = layui.jquery;
+        const layer = layui.layer;
+
+        let isLast = false;
+        let page = 2;
+        //…
+        $(document).ready(function () {
+            updateData(1);
+        })
+
+        $(".more").click(function () {
+            updateData(page);
+            page++;
+        })
+
+        function updateData(page) {
+            if (!isLast) {
+                $.ajax({
+                    url: "/hms/client/authority/allInfo",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: JSON.stringify({"page": page, "limit": 5}),
+                    success: function (data) {
+                        if (data.succeed) {
+                            console.log(data)
+                            let result = data.data;
+                            isLast = result.isLast;
+                            for (let i = 0; i < result.result.length; i++) {
+                                $(".layui-collapse").append(
+                                    advisement(result.result[i])
+                                )
+                            }
+                            element.render();
+                        } else {
+                            layer.msg(data.msg, {"icon": 2});
+                        }
+                    }
+                });
+            } else {
+                layer.msg("这已经是最后的数据了!", {"icon": 3})
+            }
+        }
+
+        function advisement(item) {
+            let strVar = "";
+            strVar += "<div class=\"layui-colla-item\">";
+            strVar += "                                <h2 class=\"layui-colla-title\">" + item.title + "  | 发布于：" + item.createTime + "<\/h2>";
+            strVar += "                                <div class=\"layui-colla-content layui-show\">" + item.content + "<\/div>";
+            strVar += "                            <\/div>";
+            return $(strVar);
+        }
+    });
+</script>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>登录 - 酒店订房系统</title>
+    <link rel="stylesheet" href="/static/css/login.css">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/layer/layer.js"></script>
+    <link rel="stylesheet" href="/static/layer/theme/default/layer.css">
+    <style>
+        button {
+            width: 95%;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login">
+    <div class="center">
+        <h1><img src="/static/imgs/Windows10.png" alt=""></h1>
+
+        <form id="form">
+            <div class="inputLi">
+                <input type="text" class="user" placeholder="请输入账号" required>
+            </div>
+            <div class="inputLi">
+                <input type="password" class="pwd" placeholder="请输入密码" required>
+            </div>
+            <div class="inputLi">
+                <div style="width: 50%">
+                    <button type="submit">登录</button>
+                </div>
+                <div style="width: 50%">
+                    <button type="button" id="regist"
+                            style="background: white;color: #537895;border: 1px solid #537895">前往注册
+                    </button>
+                </div>
+            </div>
+        </form>
+        <p class="tip">欢迎使用酒店订房系统</p>
+    </div>
+</div>
+
+</body>
+<script>
+
+    $("#regist").click(function () {
+        layer.confirm("是否前往注册?", function () {
+            window.location.href = "/hms/client/page/regist";
+        })
+    })
+
+    $("#form").submit(function () {
+        const data = {};
+        data.pwd = $(".pwd").val();
+        data.username = $(".user").val();
+
+        if (data.pwd === null || data.pwd === "") {
+            layer.msg("密码不能为空");
+            return false;
+        } else {
+            $.ajax({
+                url: "/hms/client/login",
+                data: JSON.stringify(data),
+                type: 'post',
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    console.log(data)
+                    if (data.succeed) {
+                        layer.msg("登录成功,跳转到首页", {"icon": 1})
+                        window.location.href = "/hms/client/authority/index";
+                    } else {
+                        layer.alert(data.msg, {"icon": 2});
+                    }
+                },
+                error: function () {
+                    layer.alert("请求发送失败", {"icon": 2});
+                }
+            });
+        }
+        return false;
+    })
+
+
+</script>
+
+</html>

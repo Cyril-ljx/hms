@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>房间详情 - 酒店订房系统</title>
+    <!--: include("/import.html"){} -->
+    <style>
+        .layui-card {
+            background: #FFFFFF;
+            margin: 20px 10px;
+            border: 1px solid lightgray;
+        }
+
+        .layui-col-md2 {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+    <!--: include("/header.html"){}-->
+    <div class="layui-container">
+        <div class="row">
+            <div class="layui-col-xs12">
+                <div class="layui-row">
+                    <div class="layui-row">
+                        <div class="layui-col-xs8">
+                            <fieldset class="layui-elem-field" style="margin: 20px 10px">
+                                <legend>房间详情</legend>
+                                <div class="layui-row">
+                                    <div class="layui-col-sm4">
+                                        <div class="layui-card">
+                                            <div class="layui-card-body">
+                                                <div class="layui-carousel" id="carousel">
+                                                    <div carousel-item id="imgs">
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="layui-col-sm8">
+                                        <div class="layui-card">
+                                            <div class="layui-row">
+                                                <div class="layui-col-xs12">
+                                                    <div class="layui-card-body">
+                                                        <div class="info">
+                                                            <p>房间：<a class="room-num">房间编号</a> - <a class="room-type">总统套房</a>
+                                                            </p>
+                                                            <p>价格：<a style="color: orange" class="room-price">￥2000</a>/日
+                                                            </p>
+                                                            <p>介绍：<a class="room-info">套房</a></p>
+                                                        </div>
+                                                        <div class="config">
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="layui-row">
+                                    <div class="layui-card">
+                                        <div class="layui-card-body">
+                                            <form class="layui-form layui-form-pane" action="" lay-filter="form">
+                                                <input name="roomId" value="${id}" type="hidden">
+                                                <div class="layui-row">
+                                                    <div class="layui-col-md6">
+                                                        <div class="layui-form-item">
+                                                            <label class="layui-form-label">预计入住于</label>
+                                                            <div class="layui-input-block">
+                                                                <input type="text" id="liveTime" name="liveTime"
+                                                                       required
+                                                                       lay-verify="required" placeholder="请选择入住时间"
+                                                                       autocomplete="off" class="layui-input">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="layui-col-md6">
+                                                        <div class="layui-form-item">
+                                                            <label class="layui-form-label">入住天数</label>
+                                                            <div class="layui-input-block">
+                                                                <input type="number" id="day" name="day" required
+                                                                       lay-verify="required" placeholder="请输入入住天数（天）"
+                                                                       autocomplete="off" class="layui-input">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button class="layui-btn layui-btn-warm layui-btn-fluid">预定</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="height: 20px"></div>
+                            </fieldset>
+                        </div>
+                        <div class="layui-col-xs4">
+                            <!-- TODO -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    //注意：折叠面板 依赖 element 模块，否则无法进行功能性操作
+    layui.use(['element', 'form', 'carousel', 'laydate'], function () {
+        const element = layui.element;
+        const laydate = layui.laydate;
+        const form = layui.form;
+        const $ = layui.jquery;
+        const carousel = layui.carousel;
+        //建造实例
+
+
+        laydate.render({
+            elem: "#liveTime",
+            type: "datetime"
+        })
+
+        function img(url) {
+            let strVar = "";
+            strVar += "  <div><img src='" + url + "' style=\"width: 200px;height: 200px\"><\/div>";
+            return $(strVar);
+        }
+
+        $(document).ready(function () {
+            $.ajax({
+                url: "/hms/client/authority/room/detail",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify({"id": "${id}"}),
+                success: function (data) {
+                    let room = data.data.room;
+                    let type = data.data.type;
+                    $(".room-info").html(type.roomInfo)
+                    $(".room-type").html(type.title)
+                    $(".room-price").html(type.price)
+                    $(".room-num").html(room.roomNum)
+                    if (type.isWifi === 1) {
+                        $(".config").append(config("WIFI设备"));
+                    }
+                    if (type.isAir === 1) {
+                        $(".config").append(config("冷气设备"));
+                    }
+                    if (type.isHot === 1) {
+                        $(".config").append(config("热水供应"));
+                    }
+                    if (type.isHotAir === 1) {
+                        $(".config").append(config("暖气供应"));
+                    }
+                    if (type.isWc === 1) {
+                        $(".config").append(config("配套卫生间"));
+                    }
+                    if (type.isWater === 1) {
+                        $(".config").append(config("配套饮水机"));
+                    }
+                    let imgs = type.imgs;
+                    if (imgs != null) {
+                        let imgList = imgs.split(",");
+                        for (let i = 0; i < imgList.length; i++) {
+                            if (imgList[i] === null || imgList[i] === "") {
+
+                            } else {
+                                $("#imgs").append(
+                                    img(imgList[i])
+                                )
+                            }
+                        }
+                        $("img").click(function () {
+                            let imgSrc = $(this).attr("src");
+                            layer.open({
+                                type: 1,
+                                title: false,
+                                closeBtn: 0,
+                                skin: 'layui-layer-nobg',
+                                shadeClose: true,
+                                area: ["600px", "400px"],
+                                content: "<img alt='嗯哼' title=‘title' src='" + imgSrc + "' height=400px; width=600px;" + "/>",
+                                scrollbar: false
+                            })
+                        })
+                        carousel.render({
+                            elem: '#carousel'
+                            , width: '200px' //设置容器宽度
+                            , height: '200px'
+                            //, arrow: 'always' //始终显示箭头
+                            // , anim: 'updown' //切换动画方式
+                        });
+                    }
+
+                }
+            });
+        })
+
+        function config(name) {
+            var strVar = "";
+            strVar += "<div class=\"layui-col-md3\" style='margin-top: 10px;margin-bottom: 10px'>";
+            strVar += "                                                                <button type=\"button\"";
+            strVar += "                                                                        class=\"layui-btn layui-btn-sm\">";
+            strVar += "                                                                    " + name;
+            strVar += "                                                                    <i class=\"layui-icon\">&#xe605;<\/i>";
+            strVar += "                                                                <\/button>";
+            strVar += "                                                            <\/div>";
+            return $(strVar);
+        }
+
+
+        function getData() {
+            let data = {};
+            data.liveTime = $("#liveTime").val();
+            data.roomId = "${id}";
+            data.liveDay = $("#day").val();
+            return data;
+        }
+
+        form.on('submit(form)', function (data) {
+            console.log(data)
+            layer.confirm("确认预定?", ['确认', '取消'], function () {
+                $.ajax({
+                    url: "/hms/client/roomOrder/reserveRoom",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: JSON.stringify(getData()),
+                    success: function (data) {
+                        if (data.succeed) {
+                            layer.msg("预定成功!", {"icon": 1})
+                        } else {
+                            layer.msg(data.msg, {"icon": 3})
+                        }
+                    }, error: function () {
+                        layer.alert("系统检测到您未登录,请登录后再订房!", {"icon": 3}, function () {
+                            window.location.href = "/hms/client/page/login"
+                        })
+                    }
+                })
+            })
+            return false;
+        })
+
+
+        //…
+    })
+</script>
+</html>

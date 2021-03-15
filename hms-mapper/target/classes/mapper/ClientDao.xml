@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.whp.hms.mapper.ClientDao">
+
+    <resultMap id="BaseResultMap" type="com.whp.hms.core.entity.Client">
+        <!--@Table client-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+        <result property="salt" column="salt" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="INTEGER"/>
+        <result property="identify" column="identify" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select id,
+               username,
+               nickname,
+               salt,
+               password,
+               phone,
+               email,
+               create_time,
+               state,
+               identify
+        from hms.client
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="BaseResultMap">
+        select id,
+               username,
+               nickname,
+               salt,
+               password,
+               phone,
+               email,
+               create_time,
+               state,
+               identify
+        from hms.client limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        select
+        id, username, nickname, salt, password, phone, email, create_time, state, identify
+        from hms.client
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="username != null and username != ''">
+                and username = #{username}
+            </if>
+            <if test="nickname != null and nickname != ''">
+                and nickname = #{nickname}
+            </if>
+            <if test="salt != null and salt != ''">
+                and salt = #{salt}
+            </if>
+            <if test="password != null and password != ''">
+                and password = #{password}
+            </if>
+            <if test="phone != null and phone != ''">
+                and phone = #{phone}
+            </if>
+            <if test="email != null and email != ''">
+                and email = #{email}
+            </if>
+            <if test="createTime != null and createTime != ''">
+                and create_time = #{createTime}
+            </if>
+            <if test="state != null">
+                and state = #{state}
+            </if>
+            <if test="identify != null and identify != ''">
+                and identify = #{identify}
+            </if>
+        </where>
+    </select>
+
+    <select id="list" resultMap="BaseResultMap">
+        select * from client
+        <where>
+            <if test="nickname !=null and nickname != ''">
+                and nickname like '%${nickname}%'
+            </if>
+            <if test="state !=null">
+                and state = #{state}
+            </if>
+        </where>
+        order by create_time desc
+        limit #{offset},#{limit}
+    </select>
+
+    <select id="queryCount" resultMap="BaseResultMap">
+        select count(*) from client c
+        <where>
+            <if test="nickname !=null and nickname != ''">
+                and c.nickname like '%${nickname}%'
+            </if>
+            <if test="state !=null">
+                and c.state = #{state}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into hms.client(username, nickname, salt, password, phone, email, create_time, state, identify)
+        values (#{username}, #{nickname}, #{salt}, #{password}, #{phone}, #{email}, #{createTime}, #{state},
+                #{identify})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update hms.client
+        <set>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="nickname != null and nickname != ''">
+                nickname = #{nickname},
+            </if>
+            <if test="salt != null and salt != ''">
+                salt = #{salt},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="createTime != null and createTime != ''">
+                create_time = #{createTime},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="identify != null and identify != ''">
+                identify = #{identify},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from hms.client
+        where id = #{id}
+    </delete>
+
+</mapper>

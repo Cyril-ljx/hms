@@ -1,0 +1,38 @@
+<div class="layui-header  layui-bg-blue">
+    <div class="layui-logo" style="color: white">酒店订房系统</div>
+    <!-- 头部区域（可配合layui已有的水平导航） -->
+    <ul class="layui-nav layui-layout-left">
+        <li class="layui-nav-item home"><a href="/hms/client/authority/index">订房</a></li>
+        <li class="layui-nav-item home"><a href="/hms/client/authority/advisementList">以往公告</a></li>
+    </ul>
+    <ul class="layui-nav layui-layout-right">
+        <li class="layui-nav-item">
+            <!--: if(client != null){ -->
+
+            <a href="javascript:;">
+                ${client.nickname}
+            </a>
+            <dl class="layui-nav-child">
+                <dd><a href="/hms/client/page/toMyInfo">我的信息</a></dd>
+                <dd><a href="/hms/client/page/toNowOrder">我的订房</a></dd>
+                <hr/>
+                <dd><a href="/hms/client/page/myLiveRecords">我的入住记录</a></dd>
+                <dd><a href="/hms/client/page/myReserveRecords">我的订房记录</a></dd>
+                <dd><a href="/hms/client/page/myOrder">我的订单</a></dd>
+            </dl>
+            <!--: }else{ -->
+            <a href="/hms/client/page/login" class="login">
+                请先登录
+            </a>
+            <!--: } -->
+        </li>
+        <!--: if(client != null){ -->
+        <li class="layui-nav-item"><a href="/hms/client/logout">注销</a></li>
+        <!--: }-->
+    </ul>
+</div>
+<script>
+    layui.use(["element"], function () {
+        const element = layui.element;
+    })
+</script>

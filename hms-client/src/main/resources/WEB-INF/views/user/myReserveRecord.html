@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的订房记录 - 酒店订房系统</title>
+    <!--: include("/import.html"){} -->
+    <style>
+        .layui-card {
+            background: #FFFFFF;
+            margin: 20px 10px;
+            border: 1px solid lightgray;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+    <!--: include("/header.html"){}-->
+    <div class="layui-container">
+        <div class="row">
+            <div class="layui-col-xs12">
+                <div class="layui-row">
+                    <div class="layui-row">
+                        <div class="layui-col-xs8">
+                            <fieldset class="layui-elem-field" style="margin: 20px 10px">
+                                <legend>订房记录</legend>
+
+                                <div class="reserveRecords">
+
+                                </div>
+
+                                <div style="margin: 20px 10px">
+                                    <button class="layui-btn-normal layui-btn layui-btn-fluid more">
+                                        查看更多
+                                    </button>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="layui-col-xs4">
+                            <!-- TODO -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    layui.use(['element', "jquery", 'form'], function () {
+        const element = layui.element;
+        const $ = layui.jquery;
+        const form = layui.form;
+
+        let page = 2;
+        let isLast = false;
+
+        $(".more").click(function () {
+            reload(page);
+            page++;
+        })
+
+        function reload(page) {
+            if (!isLast) {
+                $.ajax({
+                    url: "/hms/client/reserve/myRecord",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: JSON.stringify({"page": page, "limit": 5}),
+                    success: function (data) {
+                        if (data.succeed) {
+                            isLast = data.data.isLast;
+                            for (let i = 0; i < data.data.result.length; i++) {
+                                let item = data.data.result[i];
+                                $('.reserveRecords').append(
+                                    record(item)
+                                )
+                            }
+                            $(".del-btn").click(function () {
+                                let id = $(this).attr("lay-id")
+                                let record = $(this).parents(".recordItem");
+                                layer.confirm("是否删除?", {"icon": 3}, function () {
+                                    $.ajax({
+                                        url: "/hms/client/reserve/del",
+                                        type: "POST",
+                                        contentType: "application/json; charset=utf-8",
+                                        dataType: 'json',
+                                        data: JSON.stringify({"id": id}),
+                                        success: function (data) {
+                                            if (data.succeed) {
+                                                record.remove();
+                                                layer.msg("删除成功!", {"icon": 1})
+                                            } else {
+                                                layer.msg(data.msg, {"icon": 3})
+                                            }
+                                        }
+                                    })
+                                })
+                            })
+                        } else {
+                            layer.msg("获取数据失败!", {"icon": 3})
+                        }
+                    }
+                });
+            } else {
+                layer.msg("没有更多的数据了!", {"icon": 3})
+            }
+        }
+
+        $(document).ready(function () {
+            reload(1);
+        })
+
+        function record(item) {
+            let strVar = "";
+            let img = item.imgs === null ? "" : item.imgs.split(",")[0];
+            strVar += " <div class=\"layui-card recordItem \">";
+            strVar += "                                        <div class=\"layui-card-body\">";
+            strVar += "                                            <div class=\"layui-row\">";
+            strVar += "                                                <div class=\"layui-col-xs4\">";
+            if (img === "") {
+                strVar += "                                                    <img src=\"\/static\/imgs\/003.jpg\" style=\"width: 150px;height: 150px\">";
+            } else {
+                strVar += "                                                    <img src='" + img + "' style=\"width: 150px;height: 150px\">";
+            }
+            strVar += "                                                <\/div>";
+            strVar += "                                                <div class=\"layui-col-xs4\">";
+            strVar += "                                                    <p>" + item.roomNum + " - " + item.title + "<\/p>";
+            strVar += "                                                    <p>预定结果 ： " + (item.flag === 1 ? "入住" : "取消订房") + "<\/p>";
+            strVar += "                                                    <p>记录于：" + item.createTime + "<\/p>";
+            strVar += "                                                <\/div>";
+            strVar += "                                                <div class=\"layui-col-sm4\" style=\"display: flex;height: 120px\">";
+            strVar += "                                                    <div style=\"margin: auto\">";
+            strVar += "                                                        <a href='#' lay-id='" + item.id + "' class='del-btn' style=\"color: orange\">删除 >><\/a>";
+            strVar += "                                                    <\/div>";
+            strVar += "                                                <\/div>";
+            strVar += "                                            <\/div>";
+            strVar += "                                        <\/div>";
+            strVar += "                                    <\/div>";
+            return $(strVar);
+        }
+
+    });
+</script>
+</html>

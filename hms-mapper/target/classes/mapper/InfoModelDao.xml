@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.whp.hms.mapper.InfoModelDao">
+
+    <resultMap id="BaseResultMap" type="com.whp.hms.core.entity.InfoModel">
+        <!--@Table info_model-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="hTitle" column="h_title" jdbcType="VARCHAR"/>
+        <result property="hName" column="h_name" jdbcType="VARCHAR"/>
+        <result property="hAddress" column="h_address" jdbcType="VARCHAR"/>
+        <result property="hPhone" column="h_phone" jdbcType="VARCHAR"/>
+        <result property="hManager" column="h_manager" jdbcType="VARCHAR"/>
+        <result property="hMPhone" column="h_m_phone" jdbcType="VARCHAR"/>
+        <result property="hInfo" column="h_info" jdbcType="VARCHAR"/>
+        <result property="hImgs" column="h_imgs" jdbcType="VARCHAR"/>
+        <result property="isUse" column="is_use" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select *
+        from hms.info_model
+        where id = #{id}
+    </select>
+    <!--查询指定行数据-->
+    <select id="isUseList" resultMap="BaseResultMap">
+        select *
+        from hms.info_model
+        <where>
+        is_use=1
+        </where>
+        limit 1
+    </select>
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="BaseResultMap">
+        select *
+        from hms.info_model limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        select * from hms.info_model
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="hTitle != null and hTitle != ''">
+                and h_title = #{hTitle}
+            </if>
+            <if test="hName != null and hName != ''">
+                and h_name = #{hName}
+            </if>
+            <if test="hAddress != null and hAddress != ''">
+                and h_address = #{hAddress}
+            </if>
+            <if test="hPhone != null and hPhone != ''">
+                and h_phone = #{hPhone}
+            </if>
+            <if test="hManager != null and hManager != ''">
+                and h_manager = #{hManager}
+            </if>
+            <if test="hMPhone != null and hMPhone != ''">
+                and h_m_phone = #{hMPhone}
+            </if>
+            <if test="hInfo != null and hInfo != ''">
+                and h_info = #{hInfo}
+            </if>
+            <if test="hImgs != null and hImgs != ''">
+                and h_imgs = #{hImgs}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into hms.info_model(h_title, h_name, h_address, h_phone, h_manager, h_m_phone, h_info, h_imgs,is_use)
+        values (#{hTitle}, #{hName}, #{hAddress}, #{hPhone}, #{hManager}, #{hMPhone}, #{hInfo}, #{hImgs},#{isUse})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update hms.info_model
+        <set>
+            <if test="hTitle != null and hTitle != ''">
+                h_title = #{hTitle},
+            </if>
+            <if test="hName != null and hName != ''">
+                h_name = #{hName},
+            </if>
+            <if test="hAddress != null and hAddress != ''">
+                h_address = #{hAddress},
+            </if>
+            <if test="hPhone != null and hPhone != ''">
+                h_phone = #{hPhone},
+            </if>
+            <if test="hManager != null and hManager != ''">
+                h_manager = #{hManager},
+            </if>
+            <if test="hMPhone != null and hMPhone != ''">
+                h_m_phone = #{hMPhone},
+            </if>
+            <if test="hInfo != null and hInfo != ''">
+                h_info = #{hInfo},
+            </if>
+            <if test="hImgs != null and hImgs != ''">
+                h_imgs = #{hImgs},
+            </if>
+            <if test="isUse != null and isUse != ''">
+                is_use = #{isUse},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from hms.info_model
+        where id = #{id}
+    </delete>
+      <!--通过主键批量删除数据-->
+    <delete id="batchDelete" parameterType="list">
+    delete from hms.info_model where id in
+   <foreach collection="list" item="id" open="(" close=")" separator=",">
+		#{id}
+	</foreach>
+</delete>
+
+</mapper>

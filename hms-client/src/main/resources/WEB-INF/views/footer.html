@@ -1,0 +1,69 @@
+<hr class="layui-bg-cyan">
+<div class="" style="left: 0px;display: flex;">
+    <div style="margin: 20px 10px;width: 100%">
+        <div class="layui-row">
+            <div class="layui-col-md12">
+                <div class="layui-col-md6">
+                    <p class="h-address"></p>
+                    <p class="h-phone"></p>
+                    <p class="h-m-name"></p>
+                    <p class="h-m-phone"></p>
+                </div>
+                <div class="layui-col-md6">
+                    <p class="h-name">酒店介绍：</p>
+                    <p class="h-info"></p>
+                </div>
+            </div>
+        </div>
+        <div class="layui-row" style="margin-top: 20px">
+            © 2021 - hms.whp.club - 酒店管理系统
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['carousel', 'form', 'jquery'], function () {
+        const carousel = layui.carousel;
+        const $ = layui.jquery;
+
+        $.ajax({
+            url: "/hms/client/authority/isUse",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (data) {
+                if (data.succeed) {
+                    let info = data.data;
+                    let imgs = info.himgs.split(",");
+                    $(".h-name").html(info.hname + ":")
+                    $(".layui-logo").html(info.hname);
+                    $(".h-address").html("<i class=\"layui-icon\">&#xe68e;</i>  地址：" + info.haddress)
+                    $(".h-phone").html("<i class=\"layui-icon\"> &#xe678;</i>  联系电话：<strong style='color: orange'>" + info.hphone + "</strong>")
+                    $(".h-m-name").html("<i class=\"layui-icon\"> &#xe612;</i> 酒店负责人：" + info.hmanager)
+                    $(".h-m-phone").html("<i class=\"layui-icon\"> &#xe678;</i> 负责人联系电话：" + info.hmphone)
+                    $(".h-info").html(" - " + info.hinfo)
+                    for (let i = 0; i < imgs.length; i++) {
+                        if (imgs[i] !== null && imgs[i] !== '') {
+                            $("#info-imgs").append(
+                                $("<div>").append(
+                                    $("<img>").attr("src", imgs[i]).attr("style", "width:1110px;height:360px")
+                                )
+                            )
+                        }
+                    }
+
+                    carousel.render({
+                        elem: '#imgs'
+                        , width: '100%' //设置容器宽度
+                        , height: '360px'
+                        //, arrow: 'always' //始终显示箭头
+                        , anim: 'updown' //切换动画方式
+                    });
+                } else {
+                    layer.msg(data.msg, {"icon": 2})
+                }
+            }
+        });
+    })
+
+</script>

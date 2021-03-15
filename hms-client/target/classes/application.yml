@@ -1,0 +1,12 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: hms-client
+  mvc:
+    static-path-pattern: /static/**
+    view:
+      prefix: /WEB-INF/views
+      suffix: .html
+
+

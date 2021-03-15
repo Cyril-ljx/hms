@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>入住管理 - 酒店管理系统</title>
+    <!--: include("/import.html"){} -->
+</head>
+<body>
+<blockquote class="layui-elem-quote  layui-quote-nm layui-form">
+    <div class="layui-inline">
+        <div class="layui-input-inline">
+            <input type="text" id="roomNum" placeholder="请输入房间编号" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-input-inline">
+            <input type="text" id="nickname" placeholder="请输入用户姓名" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-input-inline">
+            <select id="typeId">
+                <option value="">房间类型</option>
+            </select>
+        </div>
+        <div class="layui-inline">
+            <button class="layui-btn layui-btn-normal" id="search"><i class="layui-icon">&#xe615;</i>搜索</button>
+        </div>
+        <div class="layui-inline">
+            <button class="layui-btn layui-btn-primary" id="rest"><i class="layui-icon">&#xe669;</i>重置</button>
+        </div>
+    </div>
+</blockquote>
+<table class="layui-hide" id="table" lay-filter="table"></table>
+
+<script type="text/html" id="outerBar">
+    <a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="detail">用户详情</a>
+    <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="live">入住</a>
+    <a class="layui-btn layui-btn-sm layui-btn-warm" lay-event="cancel">取消订单</a>
+</script>
+</body>
+<script>
+    layui.use(['table', 'jquery', 'form'], function () {
+        var table = layui.table;
+        var $ = layui.jquery;
+        const form = layui.form;
+        /* 表格数据载入 */
+        table.render({
+            elem: '#table',
+            url: '/hms/admin/order/liveList',
+            toolbar: '#outerBar',
+            defaultToolbar: ['filter', 'exports', 'print', {
+                title: '提示'
+                , layEvent: 'LAYTABLE_TIPS'
+                , icon: 'layui-icon-tips'
+            }],
+            skin: "row",
+            width: 1120,
+            height: 450,
+            page: true,
+            cols: [
+                [{type: 'radio', fixed: 'left'}, {
+                    field: 'id',
+                    title: 'ID',
+                    width: 160,
+                    sort: true,
+                    fixed: 'left'
+                }, {
+                    field: 'roomNum',
+                    title: '房间编号',
+                    width: 300
+                }, {
+                    field: 'roomType',
+                    title: "房间类型",
+                    width: 240
+                }, {
+                    field: 'nickname',
+                    title: '订房客户',
+                    width: 240
+                }, {
+                    field: 'liveTime',
+                    title: '预定入住时间',
+                    width: 240
+                }, {
+                    field: 'liveDay',
+                    title: '预定入住时长（天）',
+                    width: 240,
+                    templet: function (d) {
+                        return d.liveDay + "天";
+                    }
+                }
+                ]
+            ],
+            id: 'Reload' //表格重载的id
+        });
+
+        $(document).ready(function () {
+            $.ajax({
+                url: "/hms/admin/roomType/roomTypes",
+                type: 'post',
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.succeed) {
+                        console.log(data)
+                        var cols = data.data;
+                        for (let i = 0; i < cols.length; i++) {
+                            var col = cols[i];
+                            $("#typeId").append(
+                                $("<option>").attr("value", col.id).html(col.title)
+                            )
+                        }
+                        form.render('select');
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                }
+            });
+        })
+
+        $("#rest").click(function () {
+            $("#roomNum").val("");
+            $("#nickname").val("");
+            $("#typeId").val("");
+            form.render();
+        })
+
+        /* 表格重载 */
+        $('#search').on('click', function () {
+            table.reload('Reload', {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                },
+                where: {
+                    nickname: $('#nickname').val(),
+                    roomNum: $('#roomNum').val(),
+                    typeId: $("#typeId").val()
+                }
+            });
+        });
+
+        //头工具栏事件
+        table.on('toolbar(table)', function (obj) {
+                var checkStatus = table.checkStatus(obj.config.id);
+                var data = checkStatus.data[0];
+                if (obj.event !== 'add' && checkStatus.data.length === 0) {
+                    layer.msg("至少选择一条数据进行操作!", {"icon": 3});
+                    return;
+                }
+                switch (obj.event) {
+                    case 'live':
+                        layer.confirm("是否为客户办理入住?", ['确认', '取消'], function () {
+                            $.ajax({
+                                url: "/hms/admin/order/live",
+                                type: 'post',
+                                data: JSON.stringify({"id": data.id}),
+                                dataType: "json",
+                                contentType: "application/json; charset=utf-8",
+                                success: function (data) {
+                                    if (data.succeed) {
+                                        layer.msg("办理成功!", {"icon": 1});
+                                        $(".layui-laypage-btn").click();
+                                    } else {
+                                        layer.alert(data.msg, {"icon": 3});
+                                    }
+                                }
+                            })
+                        })
+                        break;
+                    case 'detail':
+                        layer.open({
+                            type: 2,
+                            title: "客户信息详情",
+                            shadeClose: true,
+                            shade: 0.2,
+                            maxmin: true, //开启最大化最小化按钮
+                            area: ['50%', '75%'],
+                            content: "/hms/admin/page/userInfo/detail?id=" + data.uid,
+                            end: function () {
+                                $(".layui-laypage-btn").click();
+                            }
+                        });
+                        break;
+                    case'cancel':
+                        layer.confirm("确认取消该入住订单?", ['确认', '取消'], function () {
+                            $.ajax({
+                                url: "/hms/admin/order/cancel",
+                                type: 'post',
+                                data: JSON.stringify({"id": data.id}),
+                                dataType: "json",
+                                contentType: "application/json; charset=utf-8",
+                                success: function (data) {
+                                    if (data.succeed) {
+                                        layer.msg("已取消!", {"icon": 1});
+                                        $(".layui-laypage-btn").click();
+                                    } else {
+                                        layer.alert(data.msg, {"icon": 2});
+                                    }
+                                }
+                            });
+                        });
+                        break;
+                    //自定义头工具栏右侧图标 - 提示
+                    case 'LAYTABLE_TIPS':
+                        layer.msg('这是工具栏右侧自定义的一个图标按钮');
+                        break;
+                }
+            }
+        );
+
+    });
+</script>
+</html>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.whp.hms.mapper.ManagerDao">
+
+    <resultMap id="BaseResultMap" type="com.whp.hms.core.entity.Manager">
+        <!--@Table manager-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="INTEGER"/>
+        <result property="salt" column="salt" jdbcType="VARCHAR"/>
+        <result property="jobId" column="job_id" jdbcType="INTEGER"/>
+
+        <result property="roleName" column="role"/>
+        <result property="permission" column="permission"/>
+
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select id,
+               username,
+               nickname,
+               password,
+               state,
+               salt,
+               job_id
+        from hms.manager
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="BaseResultMap">
+        select id,
+               username,
+               nickname,
+               password,
+               state,
+               salt,
+               job_id
+        from hms.manager limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        select
+        id, username, nickname, password, state, salt, job_id
+        from hms.manager
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="username != null and username != ''">
+                and username = #{username}
+            </if>
+            <if test="nickname != null and nickname != ''">
+                and nickname = #{nickname}
+            </if>
+            <if test="password != null and password != ''">
+                and password = #{password}
+            </if>
+            <if test="state != null">
+                and state = #{state}
+            </if>
+            <if test="salt != null and salt != ''">
+                and salt = #{salt}
+            </if>
+            <if test="jobId != null">
+                and job_id = #{jobId}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryByUserName" resultMap="BaseResultMap">
+        select m.*, GROUP_CONCAT(p.permission, ",") permission, j.role
+        from manager m
+                 left join role j on j.id = m.job_id
+                 left join permission p on p.role_id = j.id
+        where username = #{username}
+        group by m.username
+    </select>
+    <select id="queryAdminList" resultMap="BaseResultMap">
+        select m.*, r.role
+        from manager m
+                 left join role r on r.id = m.job_id
+        where m.id != #{id} limit #{offset}
+            , #{limit}
+    </select>
+    <select id="queryAdminCount" resultType="java.lang.Integer">
+        select count(*)
+        from manager m
+        where id != #{id}
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into hms.manager(username, nickname, password, state, salt, job_id)
+        values (#{username}, #{nickname}, #{password}, #{state}, #{salt}, #{jobId})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update hms.manager
+        <set>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="nickname != null and nickname != ''">
+                nickname = #{nickname},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="salt != null and salt != ''">
+                salt = #{salt},
+            </if>
+            <if test="jobId != null">
+                job_id = #{jobId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from hms.manager
+        where id = #{id}
+    </delete>
+
+</mapper>

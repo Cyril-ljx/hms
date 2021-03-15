@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.whp.hms.mapper.RoomDao">
+
+    <resultMap id="BaseResultMap" type="com.whp.hms.core.entity.Room">
+        <!--@Table room-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="roomNum" column="room_num" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="INTEGER"/>
+        <result property="useable" column="useable" jdbcType="INTEGER"/>
+        <result property="typeId" column="type_id" jdbcType="INTEGER"/>
+
+        <result property="type" column="title"/>
+        <result property="price" column="price"/>
+        <result property="imgs" column="imgs"/>
+        <result property="roomInfo" column="room_info"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select id,
+               room_num,
+               state,
+               useable,
+               type_id
+        from hms.room
+        where id = #{id}
+    </select>
+
+    <!--查询单个-->
+    <select id="query" resultMap="BaseResultMap">
+        select room.*,type.price,type.imgs,type.title,type.room_info
+        from hms.room room
+        left join hms.room_type type
+        on room.type_id = type.id
+        <where>
+            <if test="typeId != null and typeId !=''">
+                and room.type_id = #{typeId}
+            </if>
+            <if test="start != null and end != null">
+                and type.price between #{start} and #{end}
+            </if>
+            and state = 0
+            and useable = 1
+        </where>
+        limit #{offset},#{limit}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="BaseResultMap">
+        select id,
+               room_num,
+               state,
+               useable,
+               type_id
+        from hms.room limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        select
+        id, room_num, state, useable, type_id
+        from hms.room
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="roomNum != null and roomNum != ''">
+                and room_num = #{roomNum}
+            </if>
+            <if test="state != null">
+                and state = #{state}
+            </if>
+            <if test="useable != null">
+                and useable = #{useable}
+            </if>
+            <if test="typeId != null">
+                and type_id = #{typeId}
+            </if>
+        </where>
+    </select>
+    <select id="queryCount" resultType="java.lang.Integer">
+        select count(*) from room
+        <where>
+            <if test="state !=null">
+                and state = #{state}
+            </if>
+            <if test="use !=null">
+                and useable = #{use}
+            </if>
+            <if test="typeId !=null">
+                and type_id = #{typeId}
+            </if>
+        </where>
+    </select>
+    <select id="list" resultMap="BaseResultMap">
+        select r.*,rt.title from room r
+        left join room_type rt on rt.id =r.type_id
+        <where>
+            <if test="state !=null">
+                and r.state = #{state}
+            </if>
+            <if test="use !=null">
+                and r.useable = #{use}
+            </if>
+            <if test="typeId !=null">
+                and r.type_id = #{typeId}
+            </if>
+        </where>
+        order by room_num desc
+        limit #{offset},#{limit}
+    </select>
+
+    <select id="queryByRoomNum" resultMap="BaseResultMap">
+        select r.*, rt.price
+        from room r
+                 left join room_type rt on r.type_id = rt.id
+        where r.room_num = #{roomNum} limit 1
+
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into hms.room(room_num, state, useable, type_id)
+        values (#{roomNum}, #{state}, #{useable}, #{typeId})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update hms.room
+        <set>
+            <if test="roomNum != null and roomNum != ''">
+                room_num = #{roomNum},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="useable != null">
+                useable = #{useable},
+            </if>
+            <if test="typeId != null">
+                type_id = #{typeId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="live">
+        select ro.*, r.room_num
+        from hms.room_order ro
+                 left join room r on r.id = ro.room_id
+        where r.state = 1
+    </update>
+    <update id="cancel">
+        update hms.room r
+        set r.state = 0
+        where r.room_num = #{num}
+          and r.state = 1
+    </update>
+    <update id="stop">
+        update hms.room r
+        set r.state = 3
+        where r.room_num = #{num}
+          and r.state = 2
+    </update>
+    <update id="endClear">
+        update hms.room r
+        set r.state = 0
+        where r.room_num = #{num}
+          and r.state = 3
+    </update>
+
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from hms.room
+        where id = #{id}
+    </delete>
+    <update id="batchCancel" parameterType="list">
+        update hms.room
+        set state = 0
+        where
+        room_num in
+        <foreach collection="list" item="roomOrderList" open="(" close=")" separator=",">
+            #{roomOrderList.roomNum}
+        </foreach>
+    </update>
+    <update id="reserve">
+        select ro.*, r.room_num
+        from hms.room_order ro
+                 left join room r on r.id = ro.room_id
+        where r.state = 0
+    </update>
+
+</mapper>

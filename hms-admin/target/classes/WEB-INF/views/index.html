@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页 - 酒店管理系统</title>
+    <!--: include("import.html"){} -->
+    <style>
+        iframe {
+            border-width: 0px;
+        }
+
+        .layui-show {
+            height: 100%;
+        }
+
+        .layui-table-view {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">酒店管理系统</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="/static/imgs/003.jpg" class="layui-nav-img">
+                    ${manager.nickname}
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="javascript:;" id="info">重置密码</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item"><a class="logout" href="#">注销</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="left">
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">系统管理</a>
+                    <dl class="layui-nav-child">
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/manager/index" lay-id="manager">管理员管理</a>
+                        </dd>
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/role/index" lay-id="role">角色管理</a>
+                        </dd>
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/advisement/index"
+                               lay-id="advisement">前台公告管理</a>
+                        </dd>
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/loginLog/index" lay-id="loginLog">登录日志</a>
+                        </dd>
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/imgLog/index" lay-id="imgLog">图片上传记录</a>
+                        </dd>
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/hotel/index" lay-id="hotel">酒店信息模板</a>
+                        </dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">组织架构</a>
+                    <dl class="layui-nav-child">
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/department/index"
+                               lay-id="department">部门管理</a>
+                        </dd>
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/job/index" lay-id="job">岗位管理</a>
+                        </dd>
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/staff/index" lay-id="staff">员工管理</a>
+                        </dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">用户管理</a>
+                    <dl class="layui-nav-child">
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/userInfo/index" lay-id="userInfo">用户信息管理</a>
+                        </dd>
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/orderRecord/index"
+                               lay-id="order_record">用户订房记录</a>
+                        </dd>
+                        <a href="javascript:;" lay-url="/hms/admin/page/liveRecord/index"
+                           lay-id="live_record">用户入住记录</a>
+                        </dd>
+                    </dl>
+                </li>
+
+                <li class="layui-nav-item">
+                    <a href="javascript:;">房间管理</a>
+                    <dl class="layui-nav-child">
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/roomType/index"
+                               lay-id="room_type">房间类型管理</a>
+                        </dd>
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/room/index" lay-id="room">房间管理</a>
+                        </dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">入住管理</a>
+                    <dl class="layui-nav-child">
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/live/index" lay-id="live">入住管理</a>
+                        </dd>
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/cancel/index" lay-id="cancel">退房管理</a>
+                        </dd>
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/order/index" lay-id="order">订房订单</a>
+                        </dd>
+                        <dd>
+                            <a href="javascript:;" lay-url="/hms/admin/page/service/index" lay-id="service">服务管理</a>
+                        </dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 5px 0px 5px 5px;height: 100%;">
+            <div class="layui-tab" lay-allowClose="true" lay-filter="modules" style="height: 100%;">
+                <ul class="layui-tab-title">
+                </ul>
+                <div class="layui-tab-content" style="height: 100%;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        © hms.whp.com - 底部固定区域
+    </div>
+</div>
+
+</body>
+<script>
+
+    layui.use(['element', 'jquery', 'layer'], function () {
+        var element = layui.element;
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var tab_filter = "modules";
+
+        $(".logout").click(function () {
+            layer.confirm("是否退出登录?", {"icon": 3}, function () {
+                window.location.href = "/hms/admin/logout";
+            })
+        })
+        $("#info").click(function () {
+            layer.open({
+                type: 2,
+                title: "重置密码",
+                shadeClose: true,
+                shade: 0.2,
+                maxmin: true, //开启最大化最小化按钮
+                area: ['40%', '75%'],
+                content: "/hms/admin/page/reset",
+                end: function () {
+                    window.location.reload();
+                }
+            });
+        });
+
+        //监听左侧导航的点击事件
+        element.on('nav(left)', function (data) {
+            var url = data.attr("lay-url");
+
+            //无视
+            if (url === undefined) {
+                return;
+            }
+
+            var ele = {};
+            ele.title = data.html();
+            ele.id = data.attr("lay-id");
+            ele.content = "<iframe src='" + url + "' style='width: 100%;height: 100%;'></iframe>";
+            if (array.get(ele.id) === -1) {
+                tab.add(ele);
+                tab.change(ele);
+            } else {
+                tab.change(ele)
+            }
+        });
+
+        /**
+         * 监听标签页删除：同时删除数组记录
+         * */
+        element.on('tabDelete(' + tab_filter + ')', function (data) {
+            var index = data.index;
+            array.tabs.splice(index, 1);
+        });
+
+        /**
+         * 用以保存标签记录的对象
+         * */
+        var array = {
+            tabs: [],
+            add: function (tab) {
+                this.tabs.push(tab)
+            },
+            get: function (id) {
+                for (var i = 0; i < this.tabs.length; i++) {
+                    var tab = this.tabs[i];
+                    if (tab.id === id) {
+                        return i;
+                    }
+                }
+                return -1;
+            },
+            del: function (id) {
+                var index = this.get(id);
+                this.tabs.splice(index, 1);
+            }
+        };
+
+        /**
+         * 标签事件
+         * */
+        var tab = {
+            add: function (ele) {
+                //添加并且切换
+                element.tabAdd(tab_filter, {
+                    title: ele.title,
+                    content: ele.content,
+                    id: ele.id //实际使用一般是规定好的id，这里以时间戳模拟下
+                });
+                array.add(ele)
+            },
+            del: function (ele) {
+                element.tabDelete(tab_filter, ele.id);
+                array.del(ele)
+            },
+            change: function (ele) {
+                element.tabChange(tab_filter, ele.id);
+            }
+        };
+
+        $(document).ready(function () {
+            let initTab = {};
+            let url = "/hms/admin/page/loginLog/index";
+            initTab.id = "loginLog";
+            initTab.title = "登录日志";
+            initTab.content = "<iframe src='" + url + "' style='width: 100%;height: 100%;'></iframe>";
+            tab.add(initTab);
+            tab.change(initTab);
+        })
+
+    });
+</script>
+</html>

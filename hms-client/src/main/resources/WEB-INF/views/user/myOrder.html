@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的订单 - 酒店订房系统</title>
+    <!--: include("/import.html"){} -->
+    <style>
+        .layui-card {
+            background: #FFFFFF;
+            margin: 20px 10px;
+            border: 1px solid lightgray;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+    <!--: include("/header.html"){}-->
+    <div class="layui-container">
+        <div class="row">
+            <div class="layui-col-xs12">
+                <div class="layui-row">
+                    <div class="layui-row">
+                        <div class="layui-col-xs8">
+                            <fieldset class="layui-elem-field" style="margin: 20px 10px">
+                                <legend>我的订单</legend>
+
+                                <div class="orderList">
+                                </div>
+                                <div style="margin: 20px 10px">
+                                    <button class="layui-btn-normal layui-btn layui-btn-fluid more">
+                                        查看更多
+                                    </button>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="layui-col-xs4">
+                            <!-- TODO -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    layui.use(['element', "jquery", 'form'], function () {
+        const element = layui.element;
+        const $ = layui.jquery;
+        const form = layui.form;
+
+        let page = 2;
+        let isLast = false;
+
+        $(".more").click(function () {
+            reload(page);
+            page++;
+        })
+
+        function reload(page) {
+            if (!isLast) {
+                $.ajax({
+                    url: "/hms/client/roomOrder/myRoomOrder",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: JSON.stringify({"page": page, "limit": 5}),
+                    success: function (data) {
+                        if (data.succeed) {
+                            isLast = data.data.isLast;
+                            for (let i = 0; i < data.data.result.length; i++) {
+                                let item = data.data.result[i];
+                                $('.orderList').append(
+                                    record(item)
+                                )
+                            }
+                            $(".del-btn").click(function () {
+                                let id = $(this).attr("lay-id")
+                                let state = $(this).attr("lay-state")
+                                let record = $(this).parents(".recordItem");
+                                console.log(state === "3")
+                                if (state === "3" || state === "4") {
+                                    layer.confirm("是否删除?", {"icon": 3}, function () {
+                                        $.ajax({
+                                            url: "/hms/client/roomOrder/del",
+                                            type: "POST",
+                                            contentType: "application/json; charset=utf-8",
+                                            dataType: 'json',
+                                            data: JSON.stringify({"id": id}),
+                                            success: function (data) {
+                                                if (data.succeed) {
+                                                    record.remove();
+                                                    layer.msg("删除成功!", {"icon": 1})
+                                                } else {
+                                                    layer.msg(data.msg, {"icon": 3})
+                                                }
+                                            }
+                                        })
+                                    })
+                                } else {
+                                    layer.msg("不可删除，只有’取消预定‘和‘已退房’的订单可删除!", {"icon": 3})
+                                }
+                            })
+                        } else {
+                            layer.msg("获取数据失败!", {"icon": 3})
+                        }
+                    }
+                });
+            } else {
+                layer.msg("没有更多的数据了!", {"icon": 3})
+            }
+        }
+
+        $(document).ready(function () {
+            reload(1);
+        })
+
+        function record(item) {
+            let strVar = "";
+            let img = item.imgs === null ? "" : item.imgs.split(",")[0];
+            strVar += " <div class=\"layui-card recordItem \">";
+            strVar += "                                        <div class=\"layui-card-body\">";
+            strVar += "                                            <div class=\"layui-row\">";
+            strVar += "                                                <div class=\"layui-col-xs4\">";
+            if (img === "") {
+                strVar += "                                                    <img src=\"\/static\/imgs\/003.jpg\" style=\"width: 150px;height: 150px\">";
+            } else {
+                strVar += "                                                    <img src='" + img + "' style=\"width: 150px;height: 150px\">";
+            }
+            strVar += "                                            <\/div>";
+            strVar += "                                            <div class=\"layui-col-xs4\">";
+            strVar += "                                                <p>" + item.roomNum + " - " + item.roomType + " " + stateString(item.state) + "<\/p>";
+            strVar += "                                                <p>入住时间：" + item.liveTime + "<\/p>";
+            strVar += "                                                <p>入住时长：" + item.liveDay + " 天<\/p>";
+            strVar += "                                            <\/div>";
+            strVar += "                                            <div class=\"layui-col-sm4\" style=\"display: flex;height: 120px\">";
+            strVar += "                                                <div style=\"margin: auto\">";
+            strVar += "                                                        <a href='#' lay-state='" + item.state + "' lay-id='" + item.id + "' class='del-btn' style=\"color: orange\">删除 >><\/a>";
+            strVar += "                                                <\/div>";
+            strVar += "                                            <\/div>";
+            strVar += "                                        <\/div>";
+            strVar += "                                    <\/div>";
+            strVar += "                                <\/div>";
+
+            return $(strVar);
+        }
+
+        function stateString(state) {
+            switch (state) {
+                case 0:
+                    return "<span class=\"layui-badge layui-bg-green\">预定</span>";
+                case 1:
+                    return "<span class=\"layui-badge layui-bg-orange\">入住</span>";//入住
+                case 2:
+                    return "<span class=\"layui-badge layui-bg-orange\">退房中</span>";//退房中
+                case 3:
+                    return "<span class=\"layui-badge layui-bg-gray\">已退房</span>";//已退房
+                case 4:
+                    return "<span class=\"layui-badge layui-bg-black\">取消预定</span>";//取消预定
+                default:
+                    return "<span class=\"layui-badge layui-bg-red\">数据异常</span>\n";
+            }
+        }
+
+    });
+</script>
+</html>

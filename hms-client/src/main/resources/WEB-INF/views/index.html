@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页 - 酒店订房系统</title>
+    <!--: include("import.html"){} -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="/static/js/count.js"></script>
+    <style>
+        .room {
+            background: #FFFFFF;
+            margin: 20px 10px;
+            border: 1px solid lightgray;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+
+    <!--: include("/header.html"){}-->
+    <div class="layui-container">
+        <div class="row">
+            <div class="layui-col-xs12">
+                <div class="layui-card">
+                    <div class="layui-card-body">
+                        <div style="height: 20px"></div>
+                        <div class="layui-carousel" id="imgs">
+                            <div carousel-item id="info-imgs">
+
+                            </div>
+                        </div>
+                        <div style="height: 20px"></div>
+
+                        <div class="layui-row">
+                            <div class="layui-col-sm9">
+                                <fieldset class="layui-elem-field">
+                                    <legend>空闲房间</legend>
+                                    <div class="layui-field-box">
+                                        <form class="layui-form" action="">
+                                            <div class="layui-inline">
+                                                <div class="layui-input-inline">
+                                                    <input type="number" id="start" placeholder="请输入最低价格:￥/日"
+                                                           autocomplete="off"
+                                                           class="layui-input">
+                                                </div>
+                                                <div class="layui-input-inline">
+                                                    <input type="number" id="end" placeholder="请输入最高价格：￥/日"
+                                                           autocomplete="off"
+                                                           class="layui-input">
+                                                </div>
+                                                <div class="layui-input-inline" style="width: 120px">
+                                                    <select id="typeId">
+                                                        <option value="">房间类型</option>
+                                                    </select>
+                                                </div>
+
+                                            </div>
+                                            <div class="layui-inline">
+                                                <button class="layui-btn layui-btn-normal" style="margin: 20px 10px"
+                                                        type="button" id="search">查找
+                                                </button>
+                                            </div>
+                                        </form>
+                                        <div class="rooms">
+
+                                        </div>
+                                        <div>
+                                            <button class="layui-btn-normal layui-btn layui-btn-fluid more">
+                                                查看更多
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </fieldset>
+                            </div>
+                            <div class="layui-col-sm3">
+                                <fieldset class="layui-elem-field">
+                                    <legend>最新公告</legend>
+                                    <div class="layui-card">
+                                        <div class="layui-card-header notice-title">
+
+                                        </div>
+                                        <div class="layui-card-body">
+                                            <p class="notice-content"></p>
+                                            <p class="notice-time" style="float: right;"></p>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+
+
+                        <div style="height: 20px"></div>
+
+                        <!--<div>
+                            <div style="margin:auto">
+                                © 2021 - hms.whp.club - 酒店管理系统
+                            </div>
+                        </div>-->
+                    </div>
+                </div>
+                <!--: include("/footer.html"){}-->
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    layui.use(['carousel', 'form', 'jquery'], function () {
+        const carousel = layui.carousel;
+        const $ = layui.jquery;
+        const form = layui.form;
+        let page = 2;
+        let isLast = false;
+
+        //建造实例
+
+        $(".more").click(function () {
+            reload(page);
+            page++;
+        })
+
+        $("#search").click(function () {
+            $(".rooms").empty();
+            page = 2;
+            isLast = false;
+            reload(1)
+        })
+
+        function createEvent() {
+            $(".detail").click(function () {
+                let id = $(this).attr("lay-id");
+                window.open("/hms/client/authority/detail?id=" + id)
+                return false;
+            })
+
+
+            $(".reserve").click(function () {
+
+            })
+        }
+
+        function record(item) {
+            let img = item.imgs === null ? "" : item.imgs.split(",")[0];
+            let strVar = "";
+            strVar += "<div class=\"layui-card room\">";
+            strVar += "                                                <div class=\"layui-card-body\">";
+            strVar += "                                                    <div class=\"layui-row\">";
+            strVar += "                                                        <div class=\"layui-col-sm4\">";
+            if (img === "") {
+                strVar += "                                                    <img src=\"\/static\/imgs\/003.jpg\" style=\"width: 150px;height: 150px\">";
+            } else {
+                strVar += "                                                    <img src='" + img + "' style=\"width: 150px;height: 150px\">";
+            }
+            strVar += "                                                        <\/div>";
+            strVar += "                                                        <div class=\"layui-col-sm4\">";
+            strVar += "                                                            <p>房间：" + item.roomNum + " - " + item.type + "<\/p>";
+            strVar += "                                                            <p>价格：<a style=\"color: orange\">￥" + item.price + "<\/a>\/日<\/p>";
+            strVar += "                                                            <p>介绍：" + item.roomInfo + "<\/p>";
+            strVar += "                                                        <\/div>";
+            strVar += "                                                        <div class=\"layui-col-sm4\" style=\"display: flex;height: 120px\">";
+            strVar += "                                                            <div style=\"margin: auto\">";
+            strVar += "                                                                <a href=\"#\" class='detail' style=\"color: deepskyblue\" lay-id='" + item.id + "'>查看详情 >><\/a><br>";
+            strVar += "                                                                <a href=\"#\" class='reserve' style=\"color: orange\" lay-id='" + item.id + "'>立刻订房 >><\/a>";
+            strVar += "                                                            <\/div>";
+            strVar += "                                                        <\/div>";
+            strVar += "                                                    <\/div>";
+            strVar += "                                                <\/div>";
+            strVar += "                                            <\/div>";
+            return $(strVar);
+
+        }
+
+        function collectData(page) {
+            let data = {};
+            data.page = page;
+            data.limit = 5;
+            data.start = $("#start").val();
+            data.end = $("#end").val();
+            data.type_id = $("#typeId").val();
+            console.log(data)
+            return data;
+        }
+
+        function reload(page) {
+            if (!isLast) {
+                $.ajax({
+                    url: "/hms/client/authority/list",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: JSON.stringify(collectData(page)),
+                    success: function (data) {
+                        if (data.succeed) {
+                            isLast = data.data.isLast;
+                            for (let i = 0; i < data.data.result.length; i++) {
+                                let item = data.data.result[i];
+                                $('.rooms').append(
+                                    record(item)
+                                )
+                            }
+                            createEvent();
+                            layer.msg("数据已更新", {"icon": 1})
+                        } else {
+                            layer.msg(data.msg, {"icon": 3})
+                        }
+                    }
+                });
+            } else {
+                layer.msg("没有更多数据了！", {"icon": 3})
+            }
+        }
+
+        $(document).ready(function () {
+            $.ajax({
+                url: "/hms/client/authority/isShow",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (data) {
+                    if (data.succeed) {
+                        let notice = data.data;
+                        $(".notice-title").html(notice.title)
+                        $(".notice-content").html(notice.content)
+                        $(".notice-time").html("  -  " + notice.createTime)
+                    } else {
+                        layer.msg(data.msg, {"icon": 2})
+                    }
+                }
+            });
+
+            $.ajax({
+                url: "/hms/client/authority/types",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (data) {
+                    if (data.succeed) {
+                        var cols = data.data;
+                        for (let i = 0; i < cols.length; i++) {
+                            var col = cols[i];
+                            $("#typeId").append(
+                                $("<option>").attr("value", col.id).html(col.title)
+                            )
+                        }
+                        form.render('select');
+                    } else {
+                        layer.msg(data.msg, {"icon": 2})
+                    }
+                }
+            });
+            reload(1);
+
+        })
+    });
+</script>
+</body>
+</html>

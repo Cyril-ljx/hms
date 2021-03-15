@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.whp.hms.mapper.JobDao">
+
+    <resultMap id="BaseResultMap" type="com.whp.hms.core.entity.Job">
+        <!--@Table job-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="job" column="job" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="count" column="count" jdbcType="INTEGER"/>
+        <result property="wages" column="wages" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select
+          id, job, description, count, wages
+        from hms.job
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="BaseResultMap">
+        select
+          id, job, description, count, wages
+        from hms.job
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        select
+          id, job, description, count, wages
+        from hms.job
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="job != null and job != ''">
+                and job = #{job}
+            </if>
+            <if test="description != null and description != ''">
+                and description = #{description}
+            </if>
+            <if test="count != null">
+                and count = #{count}
+            </if>
+            <if test="wages != null">
+                and wages = #{wages}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into hms.job(job, description, count, wages)
+        values (#{job}, #{description}, #{count}, #{wages})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update hms.job
+        <set>
+            <if test="job != null and job != ''">
+                job = #{job},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+            <if test="count != null">
+                count = #{count},
+            </if>
+            <if test="wages != null">
+                wages = #{wages},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from hms.job where id = #{id}
+    </delete>
+
+</mapper>

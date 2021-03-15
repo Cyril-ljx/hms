@@ -1,0 +1,12 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: hms-admin
+  mvc:
+    static-path-pattern: /static/**
+    view:
+      prefix: /WEB-INF/views
+      suffix: .html
+
+
